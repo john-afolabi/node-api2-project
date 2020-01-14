@@ -87,11 +87,13 @@ router.get("/:id/comments", (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
-  remove(id)
-    .then(data => {
-      const delPost = findById(id);
-      if (data) {
-        res.status(200).json(delPost);
+
+  findById(id)
+    .then(post => {
+      if (post) {
+        remove(id).then(data => {
+          res.status(200).json(post[0]);
+        });
       } else {
         res
           .status(404)
