@@ -13,6 +13,28 @@ const {
 
 const router = express.Router();
 
+router.post("/", (req, res) => {
+  const newPost = req.body;
+
+  if (!newPost.title || !newPost.contents) {
+    res.status(400).json({
+      errorMessage: "Please provide title and contents for the post."
+    });
+  } else {
+    insert(newPost)
+      .then(data => {
+        findById(data.id).then(post => {
+          res.status(201).json(post[0]);
+        });
+      })
+      .catch(error => {
+        res.status(500).json({
+          error: "There was an error while saving the post to the database"
+        });
+      });
+  }
+});
+
 router.get("/", (req, res) => {
   find()
     .then(posts => {
@@ -86,11 +108,9 @@ router.put("/:id", (req, res) => {
   updatedPost = req.body;
 
   if (!updatedPost.title || !updatedPost.contents) {
-    res
-      .status(400)
-      .json({
-        errorMessage: "Please provide title and contents for the post."
-      });
+    res.status(400).json({
+      errorMessage: "Please provide title and contents for the post."
+    });
   } else {
     update(id, updatedPost)
       .then(data => {
@@ -99,11 +119,9 @@ router.put("/:id", (req, res) => {
             res.status(200).json(post[0]);
           });
         } else {
-          res
-            .status(404)
-            .json({
-              message: "The post with the specified ID does not exist."
-            });
+          res.status(404).json({
+            message: "The post with the specified ID does not exist."
+          });
         }
       })
       .catch(error => {
